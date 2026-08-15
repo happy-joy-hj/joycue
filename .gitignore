@@ -1,0 +1,93 @@
+# =========================================================
+# Node.js / Next.js
+# =========================================================
+
+node_modules/
+.next/
+out/
+build/
+dist/
+coverage/
+
+# Package manager / debug files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Next.js / TypeScript generated files
+*.tsbuildinfo
+next-env.d.ts
+
+# Vercel
+.vercel/
+
+
+# =========================================================
+# Python
+# =========================================================
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Python cache / compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Testing / coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+
+# Type checking / linting caches
+.mypy_cache/
+.ruff_cache/
+
+# Packaging
+*.egg-info/
+.eggs/
+
+
+# =========================================================
+# Environment variables / secrets
+# =========================================================
+
+.env
+.env.*
+!.env.example
+
+
+# =========================================================
+# IDE / editor
+# =========================================================
+
+# VS Code local workspace history/settings
+.vscode/
+
+# JetBrains IDEs
+.idea/
+
+
+# =========================================================
+# Operating system files
+# =========================================================
+
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+
+# =========================================================
+# Temporary files
+# =========================================================
+
+*.log
+*.tmp
+*.temp
+*.swp
+*.swo
