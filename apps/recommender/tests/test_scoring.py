@@ -62,11 +62,30 @@ def test_location_exact_match():
     )
 
 
-def test_location_either_matches_specific_preference():
+def test_location_either_fully_matches_stay_in_preference():
     assert (
         score_location(
             LocationType.EITHER,
             LocationType.STAY_IN,
+        )
+        == 1.0
+    )
+
+
+def test_location_either_partially_matches_go_out_preference():
+    assert (
+        score_location(
+            LocationType.EITHER,
+            LocationType.GO_OUT,
+        )
+        == 0.5
+    )
+
+def test_location_either_preference_matches_any_activity():
+    assert (
+        score_location(
+            LocationType.GO_OUT,
+            LocationType.EITHER,
         )
         == 1.0
     )

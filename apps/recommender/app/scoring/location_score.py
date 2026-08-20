@@ -12,7 +12,11 @@ def score_location(
         return 1.0
 
     if activity_location == LocationType.EITHER:
-        return 1.0
+        if preferred_location == LocationType.STAY_IN:
+            return 1.0
+
+        if preferred_location == LocationType.GO_OUT:
+            return 0.5
 
     if activity_location == preferred_location:
         return 1.0
