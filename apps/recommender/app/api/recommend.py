@@ -16,6 +16,7 @@ router = APIRouter(
 @router.post(
     "/recommend",
     response_model=RecommendResponse,
+    response_model_exclude_none=True,
 )
 def recommend(
     request: RecommendRequest,
@@ -23,6 +24,7 @@ def recommend(
     ranked = rank_activities(
         request.candidates,
         request.context,
+        request.interests,
     )
 
     return RecommendResponse(

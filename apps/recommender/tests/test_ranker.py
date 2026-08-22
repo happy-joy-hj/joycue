@@ -15,11 +15,13 @@ from app.models.context import (
     TimePreference,
 )
 from app.ranking.ranker import (
+    PERSONALIZED_SCORE_WEIGHTS,
     SCORE_WEIGHTS,
     rank_activities,
     score_activity,
 )
 from app.explanations.reason_codes import ReasonCode
+from app.models.interest import Interest
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -46,6 +48,7 @@ def make_activity(
     location: LocationType = LocationType.STAY_IN,
     cost_min: float = 0,
     cost_max: float = 0,
+    tags: list[str] | None = None,
 ) -> Activity:
     return Activity(
         id=activity_id,
@@ -59,6 +62,7 @@ def make_activity(
         location_type=location,
         cost_min=cost_min,
         cost_max=cost_max,
+        tags=tags or [],
     )
 
 
@@ -229,3 +233,68 @@ def test_ranker_excludes_candidates_that_violate_hard_constraints():
 
     assert "act_017" not in ranked_ids
     assert "act_020" not in ranked_ids
+
+def test_personalized_score_weights_add_up_to_one():
+    assert sum(
+        PERSONALIZED_SCORE_WEIGHTS.values()
+    ) == pytest.approx(1.0)
+
+def test_no_interests_preserves_baseline_score():
+    context = RecommendationContext(
+        time=TimePreference.UNDER_10_MIN,
+        energy=EffortLevel.LOW,
+        location=LocationType.STAY_IN,
+        budget=BudgetPreference.FREE,
+    )
+
+    activity = make_activity(
+        "baseline",
+        tags=["movement"],
+    )
+
+    result = score_activity(
+        activity,
+        context,
+        [],
+    )
+
+    assert result.raw_score == 100.0
+    assert result.score_breakdown.interest is None
+    assert ReasonCode.INTEREST_MATCH not in result.reason_codes
+
+def test_interest_match_can_change_ranking():
+    context = RecommendationContext(
+        time=TimePreference.ANY,
+        energy=EffortLevel.HIGH,
+        location=LocationType.EITHER,
+        budget=BudgetPreference.ANY,
+    )
+
+    activities = [
+        make_activity(
+            "activity_a",
+            tags=["home"],
+        ),
+        make_activity(
+            "activity_b",
+            tags=["movement"],
+        ),
+    ]
+
+    baseline = rank_activities(
+        activities,
+        context,
+    )
+
+    personalized = rank_activities(
+        activities,
+        context,
+        [Interest.MOVEMENT],
+    )
+
+    assert baseline[0].activity_id == "activity_a"
+    assert personalized[0].activity_id == "activity_b"
+    assert (
+        ReasonCode.INTEREST_MATCH
+        in personalized[0].reason_codes
+    )

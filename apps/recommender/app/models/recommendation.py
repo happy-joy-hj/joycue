@@ -2,6 +2,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from app.explanations.reason_codes import ReasonCode
 from app.models.activity import Activity
 from app.models.context import RecommendationContext
+from app.models.interest import Interest
 
 
 class ScoreBreakdown(BaseModel):
@@ -12,6 +13,7 @@ class ScoreBreakdown(BaseModel):
     activation: float = Field(ge=0, le=1)
     location: float = Field(ge=0, le=1)
     budget: float = Field(ge=0, le=1)
+    interest: float | None = Field(default=None, ge=0, le=1)
 
 
 class RankedActivity(BaseModel):
@@ -26,6 +28,7 @@ class RecommendRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     context: RecommendationContext
+    interests: list[Interest] = Field(default_factory=list)
     candidates: list[Activity] = Field(min_length=1)
     limit: int = Field(default=3, ge=1, le=10)
 
