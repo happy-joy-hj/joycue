@@ -195,3 +195,54 @@ def test_recommend_ranks_real_starter_activities():
         "LOCATION_MATCH",
         "BUDGET_MATCH",
     ]
+
+def test_recommend_uses_selected_interests():
+    response = client.post(
+        "/v1/recommend",
+        json={
+            "context": {
+                "time": "ANY",
+                "energy": "HIGH",
+                "location": "EITHER",
+                "budget": "ANY",
+            },
+            "interests": [
+                "MOVEMENT",
+            ],
+            "candidates": [
+                {
+                    **make_candidate(
+                        "activity_a",
+                    ),
+                    "tags": ["home"],
+                },
+                {
+                    **make_candidate(
+                        "activity_b",
+                    ),
+                    "tags": ["movement"],
+                },
+            ],
+        },
+    )
+
+    assert response.status_code == 200
+
+    recommendations = response.json()[
+        "recommendations"
+    ]
+
+    assert (
+        recommendations[0]["activity_id"]
+        == "activity_b"
+    )
+    assert (
+        recommendations[0]["score_breakdown"][
+            "interest"
+        ]
+        == 1.0
+    )
+    assert (
+        "INTEREST_MATCH"
+        in recommendations[0]["reason_codes"]
+    )

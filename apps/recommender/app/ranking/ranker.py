@@ -1,11 +1,13 @@
 from app.models.activity import Activity
 from app.models.context import RecommendationContext
 from app.models.recommendation import RankedActivity, ScoreBreakdown
+from app.models.interest import Interest
 from app.scoring.activation_score import score_activation
 from app.scoring.budget_score import score_budget
 from app.scoring.energy_score import score_energy
 from app.scoring.location_score import score_location
 from app.scoring.time_score import score_time
+from app.scoring.interest_score import score_interest
 from app.ranking.candidate_filter import filter_candidates
 from app.explanations.reason_codes import build_reason_codes
 
@@ -17,12 +19,32 @@ SCORE_WEIGHTS = {
     "location": 0.20,
     "budget": 0.10,
 }
+PERSONALIZED_SCORE_WEIGHTS = {
+    "time": 0.20,
+    "energy": 0.20,
+    "activation": 0.20,
+    "location": 0.15,
+    "budget": 0.10,
+    "interest": 0.15,
+}
 
 
 def score_activity(
     activity: Activity,
     context: RecommendationContext,
+    interests: list[Interest] | None = None,
 ) -> RankedActivity:
+    selected_interests = interests or []
+
+    interest_score = (
+        score_interest(
+            activity.tags,
+            selected_interests,
+        )
+        if selected_interests
+        else None
+    )
+
     breakdown = ScoreBreakdown(
         time=score_time(
             activity.time_min,
@@ -45,15 +67,32 @@ def score_activity(
             activity.cost_max,
             context.budget,
         ),
+        interest=interest_score,
     )
 
-    weighted_score = (
-        breakdown.time * SCORE_WEIGHTS["time"]
-        + breakdown.energy * SCORE_WEIGHTS["energy"]
-        + breakdown.activation * SCORE_WEIGHTS["activation"]
-        + breakdown.location * SCORE_WEIGHTS["location"]
-        + breakdown.budget * SCORE_WEIGHTS["budget"]
-    )
+    if selected_interests:
+        weighted_score = (
+            breakdown.time
+            * PERSONALIZED_SCORE_WEIGHTS["time"]
+            + breakdown.energy
+            * PERSONALIZED_SCORE_WEIGHTS["energy"]
+            + breakdown.activation
+            * PERSONALIZED_SCORE_WEIGHTS["activation"]
+            + breakdown.location
+            * PERSONALIZED_SCORE_WEIGHTS["location"]
+            + breakdown.budget
+            * PERSONALIZED_SCORE_WEIGHTS["budget"]
+            + interest_score
+            * PERSONALIZED_SCORE_WEIGHTS["interest"]
+        )
+    else:
+        weighted_score = (
+            breakdown.time * SCORE_WEIGHTS["time"]
+            + breakdown.energy * SCORE_WEIGHTS["energy"]
+            + breakdown.activation * SCORE_WEIGHTS["activation"]
+            + breakdown.location * SCORE_WEIGHTS["location"]
+            + breakdown.budget * SCORE_WEIGHTS["budget"]
+        )
 
     reason_codes = build_reason_codes(
         time_score=breakdown.time,
@@ -61,6 +100,7 @@ def score_activity(
         activation_score=breakdown.activation,
         location_score=breakdown.location,
         budget_score=breakdown.budget,
+        interest_score=breakdown.interest,
     )
 
     return RankedActivity(
@@ -74,6 +114,7 @@ def score_activity(
 def rank_activities(
     activities: list[Activity],
     context: RecommendationContext,
+    interests: list[Interest] | None = None,
 ) -> list[RankedActivity]:
     eligible_activities = filter_candidates(
         activities,
@@ -81,7 +122,11 @@ def rank_activities(
     )
 
     ranked = [
-        score_activity(activity, context)
+        score_activity(
+            activity,
+            context,
+            interests,
+        )
         for activity in eligible_activities
     ]
 

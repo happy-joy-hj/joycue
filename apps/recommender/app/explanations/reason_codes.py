@@ -7,6 +7,7 @@ class ReasonCode(str, Enum):
     EASY_TO_START = "EASY_TO_START"
     LOCATION_MATCH = "LOCATION_MATCH"
     BUDGET_MATCH = "BUDGET_MATCH"
+    INTEREST_MATCH = "INTEREST_MATCH"
 
 
 def build_reason_codes(
@@ -16,6 +17,7 @@ def build_reason_codes(
     activation_score: float,
     location_score: float,
     budget_score: float,
+    interest_score: float | None = None,
 ) -> list[ReasonCode]:
     reason_codes: list[ReasonCode] = []
 
@@ -33,5 +35,13 @@ def build_reason_codes(
 
     if budget_score == 1.0:
         reason_codes.append(ReasonCode.BUDGET_MATCH)
+
+    if (
+        interest_score is not None
+        and interest_score > 0
+    ):
+        reason_codes.append(
+            ReasonCode.INTEREST_MATCH
+        )
 
     return reason_codes
