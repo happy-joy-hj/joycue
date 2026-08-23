@@ -22,6 +22,7 @@ from app.ranking.ranker import (
 )
 from app.explanations.reason_codes import ReasonCode
 from app.models.interest import Interest
+from app.models.history import RecommendationHistoryItem
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -298,3 +299,94 @@ def test_interest_match_can_change_ranking():
         ReasonCode.INTEREST_MATCH
         in personalized[0].reason_codes
     )
+
+def test_no_history_preserves_raw_score_as_final_score():
+    context = RecommendationContext(
+        time=TimePreference.UNDER_10_MIN,
+        energy=EffortLevel.LOW,
+        location=LocationType.STAY_IN,
+        budget=BudgetPreference.FREE,
+    )
+
+    activity = make_activity("baseline")
+
+    result = score_activity(
+        activity,
+        context,
+        history=[],
+    )
+
+    assert result.raw_score == 100.0
+    assert result.repetition_penalty == 0.0
+    assert result.final_score == 100.0
+
+def test_recent_history_can_change_ranking():
+    context = RecommendationContext(
+        time=TimePreference.ANY,
+        energy=EffortLevel.HIGH,
+        location=LocationType.EITHER,
+        budget=BudgetPreference.ANY,
+    )
+
+    activities = [
+        make_activity("activity_a"),
+        make_activity("activity_b"),
+    ]
+
+    history = [
+        RecommendationHistoryItem(
+            activity_id="activity_a",
+            sessions_ago=1,
+        ),
+    ]
+
+    ranked = rank_activities(
+        activities,
+        context,
+        history=history,
+    )
+
+    assert ranked[0].activity_id == "activity_b"
+
+    activity_a = next(
+        result
+        for result in ranked
+        if result.activity_id == "activity_a"
+    )
+
+    assert activity_a.repetition_penalty == 15.0
+    assert (
+        activity_a.final_score
+        == activity_a.raw_score - 15.0
+    )
+
+def test_final_score_cannot_be_negative():
+    context = RecommendationContext(
+        time=TimePreference.UNDER_10_MIN,
+        energy=EffortLevel.VERY_LOW,
+        location=LocationType.STAY_IN,
+        budget=BudgetPreference.FREE,
+    )
+
+    activity = make_activity(
+        "low_score",
+        time_min=60,
+        time_max=120,
+        energy=EffortLevel.HIGH,
+        activation=EffortLevel.HIGH,
+    )
+
+    history = [
+        RecommendationHistoryItem(
+            activity_id="low_score",
+            sessions_ago=1,
+        ),
+    ]
+
+    result = score_activity(
+        activity,
+        context,
+        history=history,
+    )
+
+    assert result.final_score >= 0.0

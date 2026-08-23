@@ -25,6 +25,7 @@ def recommend(
         request.candidates,
         request.context,
         request.interests,
+        request.history,
     )
 
     return RecommendResponse(

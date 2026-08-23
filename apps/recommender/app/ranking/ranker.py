@@ -2,12 +2,16 @@ from app.models.activity import Activity
 from app.models.context import RecommendationContext
 from app.models.recommendation import RankedActivity, ScoreBreakdown
 from app.models.interest import Interest
+from app.models.history import RecommendationHistoryItem
 from app.scoring.activation_score import score_activation
 from app.scoring.budget_score import score_budget
 from app.scoring.energy_score import score_energy
 from app.scoring.location_score import score_location
 from app.scoring.time_score import score_time
 from app.scoring.interest_score import score_interest
+from app.scoring.repetition_penalty import (
+    calculate_repetition_penalty,
+)
 from app.ranking.candidate_filter import filter_candidates
 from app.explanations.reason_codes import build_reason_codes
 
@@ -33,8 +37,10 @@ def score_activity(
     activity: Activity,
     context: RecommendationContext,
     interests: list[Interest] | None = None,
+    history: list[RecommendationHistoryItem] | None = None,
 ) -> RankedActivity:
     selected_interests = interests or []
+    recent_history = history or []
 
     interest_score = (
         score_interest(
@@ -94,6 +100,26 @@ def score_activity(
             + breakdown.budget * SCORE_WEIGHTS["budget"]
         )
 
+    raw_score = round(
+        weighted_score * 100,
+        2,
+    )
+
+    repetition_penalty = (
+        calculate_repetition_penalty(
+            activity.id,
+            recent_history,
+        )
+    )
+
+    final_score = round(
+        max(
+            raw_score - repetition_penalty,
+            0.0,
+        ),
+        2,
+    )
+
     reason_codes = build_reason_codes(
         time_score=breakdown.time,
         energy_score=breakdown.energy,
@@ -105,7 +131,9 @@ def score_activity(
 
     return RankedActivity(
         activity_id=activity.id,
-        raw_score=round(weighted_score * 100, 2),
+        raw_score=raw_score,
+        repetition_penalty=repetition_penalty,
+        final_score=final_score,
         score_breakdown=breakdown,
         reason_codes=reason_codes,
     )
@@ -115,6 +143,7 @@ def rank_activities(
     activities: list[Activity],
     context: RecommendationContext,
     interests: list[Interest] | None = None,
+    history: list[RecommendationHistoryItem] | None = None,
 ) -> list[RankedActivity]:
     eligible_activities = filter_candidates(
         activities,
@@ -126,11 +155,16 @@ def rank_activities(
             activity,
             context,
             interests,
+            history,
         )
         for activity in eligible_activities
     ]
 
     return sorted(
         ranked,
-        key=lambda result: (-result.raw_score, result.activity_id),
+        key=lambda result: (
+            -result.final_score,
+            -result.raw_score,
+            result.activity_id,
+        ),
     )
