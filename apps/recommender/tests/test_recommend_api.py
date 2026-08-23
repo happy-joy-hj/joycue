@@ -246,3 +246,50 @@ def test_recommend_uses_selected_interests():
         "INTEREST_MATCH"
         in recommendations[0]["reason_codes"]
     )
+
+def test_recommend_applies_recent_history_penalty():
+    response = client.post(
+        "/v1/recommend",
+        json={
+            "context": {
+                "time": "ANY",
+                "energy": "HIGH",
+                "location": "EITHER",
+                "budget": "ANY",
+            },
+            "history": [
+                {
+                    "activity_id": "activity_a",
+                    "sessions_ago": 1,
+                },
+            ],
+            "candidates": [
+                make_candidate("activity_a"),
+                make_candidate("activity_b"),
+            ],
+        },
+    )
+
+    assert response.status_code == 200
+
+    recommendations = response.json()[
+        "recommendations"
+    ]
+
+    assert (
+        recommendations[0]["activity_id"]
+        == "activity_b"
+    )
+
+    activity_a = next(
+        recommendation
+        for recommendation in recommendations
+        if recommendation["activity_id"]
+        == "activity_a"
+    )
+
+    assert activity_a["repetition_penalty"] == 15.0
+    assert (
+        activity_a["final_score"]
+        == activity_a["raw_score"] - 15.0
+    )
