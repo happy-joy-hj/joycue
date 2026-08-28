@@ -1,0 +1,117 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum InterestKey {
+  FRIENDS
+  FUN
+  MOVEMENT
+  CAREER
+  LEARNING
+  CREATIVITY
+  EXPLORATION
+  HOME
+  REST
+  PERSONAL_PROJECTS
+  NEW_EXPERIENCES
+}
+
+enum ActivitySource {
+  STARTER
+  USER_CREATED
+  NOTICED
+  SAVED_RECOMMENDATION
+}
+
+enum ActivityCategory {
+  REST
+  MOVEMENT
+  AWARENESS
+  HOME
+  FUN
+  SOCIAL
+  LEARNING
+  CAREER
+  CREATIVE
+  EXPLORATION
+}
+
+enum EffortLevel {
+  VERY_LOW
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum LocationType {
+  STAY_IN
+  GO_OUT
+  EITHER
+}
+
+enum EnvironmentType {
+  QUIET
+  FLEXIBLE
+  LIVELY
+}
+
+enum SocialMode {
+  SOLO
+  WITH_OTHERS
+  EITHER
+}
+
+enum ScreenMode {
+  SCREEN_FREE
+  SCREEN_OPTIONAL
+  SCREEN_REQUIRED
+}
+
+model Interest {
+  key         InterestKey @id
+  label       String
+  description String?
+  sortOrder   Int         @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Activity {
+  id String @id @default(cuid())
+
+  title       String
+  description String?
+  firstStep   String
+  planSteps   String[] @default([])
+
+  category ActivityCategory
+  tags     String[]         @default([])
+
+  timeMin Int?
+  timeMax Int?
+
+  energyRequired   EffortLevel?
+  activationEffort EffortLevel?
+  mentalEffort     EffortLevel?
+  physicalEffort   EffortLevel?
+
+  locationType LocationType?
+  environment  EnvironmentType?
+  socialMode   SocialMode?
+  screenMode   ScreenMode?
+
+  costMin Float?
+  costMax Float?
+
+  source   ActivitySource @default(STARTER)
+  isActive Boolean        @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
