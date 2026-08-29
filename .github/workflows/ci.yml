@@ -42,6 +42,12 @@ jobs:
 
       - name: Build
         run: npm run build
+        env:
+          DATABASE_URL: postgresql://user:password@localhost:5432/joycue
+          BETTER_AUTH_URL: http://localhost:3000
+          BETTER_AUTH_SECRET: ci-only-better-auth-secret-at-least-32-characters
+          GOOGLE_CLIENT_ID: ci-google-client-id
+          GOOGLE_CLIENT_SECRET: ci-google-client-secret
 
   recommender:
     name: Recommender
