@@ -1,0 +1,163 @@
+"use client";
+
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { FormEvent, useState } from "react";
+
+import { authClient } from "@/lib/auth-client";
+
+export default function SignInPage() {
+  const router = useRouter();
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isEmailPending, setIsEmailPending] = useState(false);
+  const [isGooglePending, setIsGooglePending] = useState(false);
+
+  async function handleEmailSignIn(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    setErrorMessage(null);
+    setIsEmailPending(true);
+
+    const { error } = await authClient.signIn.email({
+      email,
+      password,
+    });
+
+    setIsEmailPending(false);
+
+    if (error) {
+      setErrorMessage(error.message || "Unable to sign in.");
+      return;
+    }
+
+    router.replace("/");
+    router.refresh();
+  }
+
+  async function handleGoogleSignIn() {
+    setErrorMessage(null);
+    setIsGooglePending(true);
+
+    const { error } = await authClient.signIn.social({
+      provider: "google",
+      callbackURL: "/",
+    });
+
+    if (error) {
+      setIsGooglePending(false);
+      setErrorMessage(error.message || "Unable to sign in with Google.");
+    }
+  }
+
+  return (
+    <main className="flex min-h-screen items-center justify-center bg-slate-50 px-6 py-16">
+      <section className="w-full max-w-md">
+        <div className="mb-8 text-center">
+          <Link
+            href="/"
+            className="text-sm font-medium tracking-widest text-violet-600 uppercase"
+          >
+            JoyCue
+          </Link>
+
+          <h1 className="mt-4 text-3xl font-semibold tracking-tight text-slate-900">
+            Welcome back
+          </h1>
+
+          <p className="mt-2 text-sm text-slate-600">
+            Sign in to continue finding things that fit your moment.
+          </p>
+        </div>
+
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <button
+            type="button"
+            onClick={handleGoogleSignIn}
+            disabled={isGooglePending || isEmailPending}
+            className="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {isGooglePending
+              ? "Connecting to Google..."
+              : "Continue with Google"}
+          </button>
+
+          <div className="my-6 flex items-center gap-3">
+            <div className="h-px flex-1 bg-slate-200" />
+            <span className="text-xs text-slate-400">or</span>
+            <div className="h-px flex-1 bg-slate-200" />
+          </div>
+
+          <form onSubmit={handleEmailSignIn} className="space-y-4">
+            <div>
+              <label
+                htmlFor="email"
+                className="mb-1.5 block text-sm font-medium text-slate-700"
+              >
+                Email
+              </label>
+
+              <input
+                id="email"
+                type="email"
+                autoComplete="email"
+                required
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                className="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-slate-900 outline-none transition focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="password"
+                className="mb-1.5 block text-sm font-medium text-slate-700"
+              >
+                Password
+              </label>
+
+              <input
+                id="password"
+                type="password"
+                autoComplete="current-password"
+                required
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                className="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-slate-900 outline-none transition focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
+              />
+            </div>
+
+            {errorMessage && (
+              <p
+                role="alert"
+                className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700"
+              >
+                {errorMessage}
+              </p>
+            )}
+
+            <button
+              type="submit"
+              disabled={isEmailPending || isGooglePending}
+              className="w-full rounded-xl bg-violet-600 px-4 py-3 text-sm font-medium text-white transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {isEmailPending ? "Signing in..." : "Sign in"}
+            </button>
+          </form>
+
+          <p className="mt-6 text-center text-sm text-slate-600">
+            New to JoyCue?{" "}
+            <Link
+              href="/sign-up"
+              className="font-medium text-violet-600 hover:text-violet-700"
+            >
+              Create an account
+            </Link>
+          </p>
+        </div>
+      </section>
+    </main>
+  );
+}
