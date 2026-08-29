@@ -2,12 +2,21 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FormEvent, useState } from "react";
+import { type SubmitEvent, useEffect, useState } from "react";
 
 import { authClient } from "@/lib/auth-client";
 
 export default function SignUpPage() {
   const router = useRouter();
+
+  const { data: session, isPending: isSessionPending } =
+    authClient.useSession();
+
+  useEffect(() => {
+    if (session) {
+      router.replace("/");
+    }
+  }, [router, session]);
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -17,7 +26,7 @@ export default function SignUpPage() {
   const [isEmailPending, setIsEmailPending] = useState(false);
   const [isGooglePending, setIsGooglePending] = useState(false);
 
-  async function handleEmailSignUp(event: FormEvent<HTMLFormElement>) {
+  async function handleEmailSignUp(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
 
     setErrorMessage(null);
@@ -59,6 +68,14 @@ export default function SignUpPage() {
       setIsGooglePending(false);
       setErrorMessage(error.message || "Unable to continue with Google.");
     }
+  }
+
+  if (isSessionPending || session) {
+    return (
+      <main className="flex min-h-screen items-center justify-center">
+        <p className="text-sm text-slate-500">Loading...</p>
+      </main>
+    );
   }
 
   return (
