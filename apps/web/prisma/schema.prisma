@@ -78,8 +78,34 @@ model Interest {
   description String?
   sortOrder   Int         @unique
 
+  userInterests UserInterest[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model UserProfile {
+  userId              String  @id
+  onboardingCompleted Boolean @default(false)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model UserInterest {
+  userId      String
+  interestKey InterestKey
+  priority    Int?
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  interest Interest @relation(fields: [interestKey], references: [key], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@id([userId, interestKey])
+  @@index([interestKey])
 }
 
 model Activity {
@@ -126,6 +152,9 @@ model User {
   updatedAt     DateTime  @updatedAt
   sessions      Session[]
   accounts      Account[]
+
+  profile       UserProfile?
+  userInterests UserInterest[]
 
   @@unique([email])
   @@map("user")
