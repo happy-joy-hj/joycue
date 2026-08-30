@@ -23,7 +23,7 @@
   --foreground: #172033;
   --muted: #667085;
 
-  /* Signature JoyCue gradient */
+  /* JoyCue gradients */
   --joy-gradient: linear-gradient(
     135deg,
     var(--joy-blue) 0%,
@@ -37,6 +37,77 @@
     var(--joy-indigo) 55%,
     var(--joy-purple) 100%
   );
+
+  --joy-gradient-footer: linear-gradient(
+    135deg,
+    var(--joy-night) 0%,
+    #1b2853 55%,
+    var(--joy-indigo) 100%
+  );
+
+  --joy-gradient-line: linear-gradient(
+    90deg,
+    transparent,
+    var(--joy-blue),
+    var(--joy-lavender),
+    transparent
+  );
+}
+
+/*
+ * Expose JoyCue design tokens as Tailwind utilities.
+ *
+ * Examples:
+ * text-joy-night
+ * bg-joy-purple
+ * ring-joy-soft-lavender/40
+ * bg-surface
+ * border-line
+ * text-muted
+ */
+@theme inline {
+  --color-joy-night: var(--joy-night);
+  --color-joy-indigo: var(--joy-indigo);
+  --color-joy-blue: var(--joy-blue);
+  --color-joy-purple: var(--joy-purple);
+  --color-joy-lavender: var(--joy-lavender);
+
+  --color-joy-mist: var(--joy-mist);
+  --color-joy-blush: var(--joy-blush);
+  --color-joy-pink: var(--joy-pink);
+  --color-joy-soft-lavender: var(--joy-soft-lavender);
+  --color-joy-mint: var(--joy-mint);
+
+  --color-page: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-soft: var(--surface-soft);
+  --color-line: var(--border);
+  --color-ink: var(--foreground);
+  --color-muted: var(--muted);
+}
+
+/* Reusable JoyCue gradient utilities */
+@utility bg-joy-gradient {
+  background-image: var(--joy-gradient);
+}
+
+@utility bg-joy-gradient-dark {
+  background-image: var(--joy-gradient-dark);
+}
+
+@utility bg-joy-gradient-footer {
+  background-image: var(--joy-gradient-footer);
+}
+
+@utility bg-joy-gradient-line {
+  background-image: var(--joy-gradient-line);
+}
+
+@utility text-joy-gradient {
+  background-image: var(--joy-gradient);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
 }
 
 * {
@@ -68,6 +139,10 @@ body {
     ),
     var(--background);
   color: var(--foreground);
+}
+
+button:not(:disabled) {
+  cursor: pointer;
 }
 
 ::selection {

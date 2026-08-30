@@ -25,22 +25,27 @@ export function AuthStatus() {
   }
 
   if (isPending) {
-    return <div className="h-10 w-32 animate-pulse rounded-xl bg-white/15" />;
+    return (
+      <div
+        className="h-10 w-28 animate-pulse rounded-xl bg-white/15 sm:w-32"
+        aria-hidden="true"
+      />
+    );
   }
 
   if (!session) {
     return (
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3">
         <Link
           href="/sign-in"
-          className="text-sm font-medium text-white/80 transition hover:text-white"
+          className="rounded-lg px-1 py-2 text-sm font-medium text-white/80 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
         >
           Sign in
         </Link>
 
         <Link
           href="/sign-up"
-          className="rounded-xl bg-white px-4 py-2.5 text-sm font-medium text-[#2e3e6e] shadow-sm transition hover:bg-[#f3f1f8]"
+          className="rounded-xl bg-white px-3 py-2.5 text-sm font-medium text-joy-indigo shadow-sm transition hover:bg-surface-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-offset-2 focus-visible:ring-offset-joy-night sm:px-4"
         >
           Create account
         </Link>
@@ -49,8 +54,11 @@ export function AuthStatus() {
   }
 
   return (
-    <div className="flex items-center gap-3">
-      <p className="hidden text-sm text-white/80 sm:block">
+    <div className="flex items-center gap-2 sm:gap-3">
+      <p
+        className="hidden max-w-40 truncate text-sm text-white/80 sm:block"
+        title={session.user.name}
+      >
         Hi, {session.user.name}
       </p>
 
@@ -58,7 +66,7 @@ export function AuthStatus() {
         type="button"
         onClick={handleSignOut}
         disabled={isSigningOut}
-        className="rounded-xl border border-white/25 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60"
+        className="rounded-xl bg-white px-3 py-2.5 text-sm font-medium text-joy-indigo shadow-sm transition hover:bg-surface-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-offset-2 focus-visible:ring-offset-joy-night disabled:cursor-not-allowed disabled:opacity-60 sm:px-4"
       >
         {isSigningOut ? "Signing out..." : "Sign out"}
       </button>

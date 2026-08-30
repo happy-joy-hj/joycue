@@ -6,27 +6,16 @@ export function SiteFooter() {
 
   return (
     <footer className="text-white">
-      <div
-        className="h-px w-full"
-        style={{
-          background:
-            "linear-gradient(90deg, transparent, var(--joy-blue), var(--joy-lavender), transparent)",
-        }}
-      />
+      <div className="bg-joy-gradient-line h-px w-full" />
 
-      <div
-        style={{
-          background:
-            "linear-gradient(135deg, #0e1a3e 0%, #1b2853 55%, #2e3e6e 100%)",
-        }}
-      >
+      <div className="bg-joy-gradient-footer">
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-8 sm:flex-row sm:items-center sm:justify-between">
           <Link
             href="/"
             aria-label="JoyCue home"
             className="group flex w-fit items-center gap-3"
           >
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/95 shadow-sm ring-1 ring-[#d0a8e0]/30 transition group-hover:bg-white">
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/95 shadow-sm ring-1 ring-joy-soft-lavender/30 transition group-hover:bg-white">
               <Image
                 src="/icon.png"
                 alt=""

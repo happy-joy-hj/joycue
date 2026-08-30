@@ -72,160 +72,164 @@ export default function SignUpPage() {
 
   if (isSessionPending || session) {
     return (
-      <main className="flex min-h-screen items-center justify-center">
-        <p className="text-sm text-slate-500">Loading...</p>
+      <main className="flex flex-1 items-center justify-center px-6 py-16">
+        <p className="text-sm text-muted">Loading...</p>
       </main>
     );
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-50 px-6 py-16">
+    <main className="flex flex-1 items-center justify-center px-6 py-12 sm:py-16">
       <section className="w-full max-w-md">
         <div className="mb-8 text-center">
           <Link
             href="/"
-            className="text-sm font-medium tracking-widest text-violet-600 uppercase"
+            className="inline-block rounded-full border border-line bg-white/70 px-4 py-1.5 text-xs font-semibold tracking-[0.22em] text-joy-purple uppercase backdrop-blur-sm transition hover:bg-white"
           >
             JoyCue
           </Link>
 
-          <h1 className="mt-4 text-3xl font-semibold tracking-tight text-slate-900">
+          <h1 className="mt-5 text-3xl font-semibold tracking-tight text-joy-night sm:text-4xl">
             Create your account
           </h1>
 
-          <p className="mt-2 text-sm text-slate-600">
+          <p className="mx-auto mt-3 max-w-sm text-sm leading-6 text-muted">
             Save your interests and build recommendations around you.
           </p>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <button
-            type="button"
-            onClick={handleGoogleSignUp}
-            disabled={isGooglePending || isEmailPending}
-            className="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {isGooglePending
-              ? "Connecting to Google..."
-              : "Continue with Google"}
-          </button>
+        <div className="overflow-hidden rounded-3xl border border-line bg-white/90 shadow-[0_20px_60px_-35px_rgba(46,62,110,0.4)] backdrop-blur-sm">
+          <div className="bg-joy-gradient h-1.5 w-full" />
 
-          <div className="my-6 flex items-center gap-3">
-            <div className="h-px flex-1 bg-slate-200" />
-            <span className="text-xs text-slate-400">or</span>
-            <div className="h-px flex-1 bg-slate-200" />
-          </div>
-
-          <form onSubmit={handleEmailSignUp} className="space-y-4">
-            <div>
-              <label
-                htmlFor="name"
-                className="mb-1.5 block text-sm font-medium text-slate-700"
-              >
-                Name
-              </label>
-
-              <input
-                id="name"
-                type="text"
-                autoComplete="name"
-                required
-                value={name}
-                onChange={(event) => setName(event.target.value)}
-                className="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-slate-900 outline-none transition focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="email"
-                className="mb-1.5 block text-sm font-medium text-slate-700"
-              >
-                Email
-              </label>
-
-              <input
-                id="email"
-                type="email"
-                autoComplete="email"
-                required
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                className="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-slate-900 outline-none transition focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="password"
-                className="mb-1.5 block text-sm font-medium text-slate-700"
-              >
-                Password
-              </label>
-
-              <input
-                id="password"
-                type="password"
-                autoComplete="new-password"
-                required
-                minLength={8}
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                className="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-slate-900 outline-none transition focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
-              />
-
-              <p className="mt-1.5 text-xs text-slate-500">
-                Use at least 8 characters.
-              </p>
-            </div>
-
-            <div>
-              <label
-                htmlFor="confirm-password"
-                className="mb-1.5 block text-sm font-medium text-slate-700"
-              >
-                Confirm password
-              </label>
-
-              <input
-                id="confirm-password"
-                type="password"
-                autoComplete="new-password"
-                required
-                minLength={8}
-                value={confirmPassword}
-                onChange={(event) => setConfirmPassword(event.target.value)}
-                className="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-slate-900 outline-none transition focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
-              />
-            </div>
-
-            {errorMessage && (
-              <p
-                role="alert"
-                className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700"
-              >
-                {errorMessage}
-              </p>
-            )}
-
+          <div className="p-6 sm:p-8">
             <button
-              type="submit"
-              disabled={isEmailPending || isGooglePending}
-              className="w-full rounded-xl bg-violet-600 px-4 py-3 text-sm font-medium text-white transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-60"
+              type="button"
+              onClick={handleGoogleSignUp}
+              disabled={isGooglePending || isEmailPending}
+              className="w-full rounded-xl border border-line bg-white px-4 py-3 text-sm font-medium text-joy-indigo transition hover:bg-surface-soft disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {isEmailPending ? "Creating account..." : "Create account"}
+              {isGooglePending
+                ? "Connecting to Google..."
+                : "Continue with Google"}
             </button>
-          </form>
 
-          <p className="mt-6 text-center text-sm text-slate-600">
-            Already have an account?{" "}
-            <Link
-              href="/sign-in"
-              className="font-medium text-violet-600 hover:text-violet-700"
-            >
-              Sign in
-            </Link>
-          </p>
+            <div className="my-6 flex items-center gap-3">
+              <div className="h-px flex-1 bg-line" />
+              <span className="text-xs text-muted">or</span>
+              <div className="h-px flex-1 bg-line" />
+            </div>
+
+            <form onSubmit={handleEmailSignUp} className="space-y-4">
+              <div>
+                <label
+                  htmlFor="name"
+                  className="mb-1.5 block text-sm font-medium text-ink"
+                >
+                  Name
+                </label>
+
+                <input
+                  id="name"
+                  type="text"
+                  autoComplete="name"
+                  required
+                  value={name}
+                  onChange={(event) => setName(event.target.value)}
+                  className="w-full rounded-xl border border-line bg-white px-3 py-2.5 text-ink outline-none transition focus:border-joy-purple focus:ring-4 focus:ring-joy-soft-lavender/25"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="email"
+                  className="mb-1.5 block text-sm font-medium text-ink"
+                >
+                  Email
+                </label>
+
+                <input
+                  id="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  className="w-full rounded-xl border border-line bg-white px-3 py-2.5 text-ink outline-none transition focus:border-joy-purple focus:ring-4 focus:ring-joy-soft-lavender/25"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="password"
+                  className="mb-1.5 block text-sm font-medium text-ink"
+                >
+                  Password
+                </label>
+
+                <input
+                  id="password"
+                  type="password"
+                  autoComplete="new-password"
+                  required
+                  minLength={8}
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  className="w-full rounded-xl border border-line bg-white px-3 py-2.5 text-ink outline-none transition focus:border-joy-purple focus:ring-4 focus:ring-joy-soft-lavender/25"
+                />
+
+                <p className="mt-1.5 text-xs text-muted">
+                  Use at least 8 characters.
+                </p>
+              </div>
+
+              <div>
+                <label
+                  htmlFor="confirm-password"
+                  className="mb-1.5 block text-sm font-medium text-ink"
+                >
+                  Confirm password
+                </label>
+
+                <input
+                  id="confirm-password"
+                  type="password"
+                  autoComplete="new-password"
+                  required
+                  minLength={8}
+                  value={confirmPassword}
+                  onChange={(event) => setConfirmPassword(event.target.value)}
+                  className="w-full rounded-xl border border-line bg-white px-3 py-2.5 text-ink outline-none transition focus:border-joy-purple focus:ring-4 focus:ring-joy-soft-lavender/25"
+                />
+              </div>
+
+              {errorMessage && (
+                <p
+                  role="alert"
+                  className="rounded-xl border border-red-200 bg-red-50 px-3 py-2.5 text-sm text-red-700"
+                >
+                  {errorMessage}
+                </p>
+              )}
+
+              <button
+                type="submit"
+                disabled={isEmailPending || isGooglePending}
+                className="bg-joy-gradient w-full rounded-xl px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isEmailPending ? "Creating account..." : "Create account"}
+              </button>
+            </form>
+
+            <p className="mt-6 text-center text-sm text-muted">
+              Already have an account?{" "}
+              <Link
+                href="/sign-in"
+                className="font-semibold text-joy-purple transition hover:text-joy-indigo"
+              >
+                Sign in
+              </Link>
+            </p>
+          </div>
         </div>
       </section>
     </main>
