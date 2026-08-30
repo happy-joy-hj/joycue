@@ -1,13 +1,7 @@
-import { AuthStatus } from "@/components/auth-status";
-
 export default function Home() {
   return (
-    <main className="min-h-screen px-6 py-8">
-      <div className="mx-auto flex w-full max-w-5xl justify-end">
-        <AuthStatus />
-      </div>
-
-      <section className="mx-auto flex min-h-[calc(100vh-6rem)] w-full max-w-3xl items-center justify-center text-center">
+    <main className="flex-1 px-6 py-14">
+      <section className="mx-auto flex min-h-[calc(100vh-16rem)] w-full max-w-3xl items-center justify-center text-center">
         <div>
           <p className="mb-4 text-sm font-medium tracking-widest text-violet-600 uppercase">
             JoyCue

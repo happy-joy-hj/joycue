@@ -1,12 +1,76 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
+  /* Core JoyCue brand */
+  --joy-night: #0e1a3e;
+  --joy-indigo: #2e3e6e;
+  --joy-blue: #3a6e8e;
+  --joy-purple: #5e4e8e;
+  --joy-lavender: #9e7bbe;
+
+  /* Soft accents */
+  --joy-mist: #b4c8d8;
+  --joy-blush: #e0c8d4;
+  --joy-pink: #f2c8d0;
+  --joy-soft-lavender: #d0a8e0;
+  --joy-mint: #b8e0d4;
+
+  /* Neutrals */
+  --background: #f8f7fb;
+  --surface: #ffffff;
+  --surface-soft: #f3f1f8;
+  --border: #e8e4ef;
+  --foreground: #172033;
+  --muted: #667085;
+
+  /* Signature JoyCue gradient */
+  --joy-gradient: linear-gradient(
+    135deg,
+    var(--joy-blue) 0%,
+    var(--joy-purple) 55%,
+    var(--joy-lavender) 100%
+  );
+
+  --joy-gradient-dark: linear-gradient(
+    135deg,
+    var(--joy-night) 0%,
+    var(--joy-indigo) 55%,
+    var(--joy-purple) 100%
+  );
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
 }
 
 body {
   margin: 0;
-  background: var(--background);
+  min-height: 100vh;
+  background:
+    radial-gradient(
+      circle at 15% 10%,
+      rgb(180 200 216 / 28%),
+      transparent 32rem
+    ),
+    radial-gradient(
+      circle at 90% 15%,
+      rgb(224 200 212 / 24%),
+      transparent 28rem
+    ),
+    radial-gradient(
+      circle at 75% 85%,
+      rgb(208 168 224 / 16%),
+      transparent 30rem
+    ),
+    var(--background);
   color: var(--foreground);
+}
+
+::selection {
+  background: var(--joy-soft-lavender);
+  color: var(--joy-night);
 }
