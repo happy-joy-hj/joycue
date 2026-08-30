@@ -1,12 +1,151 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
+  /* Core JoyCue brand */
+  --joy-night: #0e1a3e;
+  --joy-indigo: #2e3e6e;
+  --joy-blue: #3a6e8e;
+  --joy-purple: #5e4e8e;
+  --joy-lavender: #9e7bbe;
+
+  /* Soft accents */
+  --joy-mist: #b4c8d8;
+  --joy-blush: #e0c8d4;
+  --joy-pink: #f2c8d0;
+  --joy-soft-lavender: #d0a8e0;
+  --joy-mint: #b8e0d4;
+
+  /* Neutrals */
+  --background: #f8f7fb;
+  --surface: #ffffff;
+  --surface-soft: #f3f1f8;
+  --border: #e8e4ef;
+  --foreground: #172033;
+  --muted: #667085;
+
+  /* JoyCue gradients */
+  --joy-gradient: linear-gradient(
+    135deg,
+    var(--joy-blue) 0%,
+    var(--joy-purple) 55%,
+    var(--joy-lavender) 100%
+  );
+
+  --joy-gradient-dark: linear-gradient(
+    135deg,
+    var(--joy-night) 0%,
+    var(--joy-indigo) 55%,
+    var(--joy-purple) 100%
+  );
+
+  --joy-gradient-footer: linear-gradient(
+    135deg,
+    var(--joy-night) 0%,
+    #1b2853 55%,
+    var(--joy-indigo) 100%
+  );
+
+  --joy-gradient-line: linear-gradient(
+    90deg,
+    transparent,
+    var(--joy-blue),
+    var(--joy-lavender),
+    transparent
+  );
+}
+
+/*
+ * Expose JoyCue design tokens as Tailwind utilities.
+ *
+ * Examples:
+ * text-joy-night
+ * bg-joy-purple
+ * ring-joy-soft-lavender/40
+ * bg-surface
+ * border-line
+ * text-muted
+ */
+@theme inline {
+  --color-joy-night: var(--joy-night);
+  --color-joy-indigo: var(--joy-indigo);
+  --color-joy-blue: var(--joy-blue);
+  --color-joy-purple: var(--joy-purple);
+  --color-joy-lavender: var(--joy-lavender);
+
+  --color-joy-mist: var(--joy-mist);
+  --color-joy-blush: var(--joy-blush);
+  --color-joy-pink: var(--joy-pink);
+  --color-joy-soft-lavender: var(--joy-soft-lavender);
+  --color-joy-mint: var(--joy-mint);
+
+  --color-page: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-soft: var(--surface-soft);
+  --color-line: var(--border);
+  --color-ink: var(--foreground);
+  --color-muted: var(--muted);
+}
+
+/* Reusable JoyCue gradient utilities */
+@utility bg-joy-gradient {
+  background-image: var(--joy-gradient);
+}
+
+@utility bg-joy-gradient-dark {
+  background-image: var(--joy-gradient-dark);
+}
+
+@utility bg-joy-gradient-footer {
+  background-image: var(--joy-gradient-footer);
+}
+
+@utility bg-joy-gradient-line {
+  background-image: var(--joy-gradient-line);
+}
+
+@utility text-joy-gradient {
+  background-image: var(--joy-gradient);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
 }
 
 body {
   margin: 0;
-  background: var(--background);
+  min-height: 100vh;
+  background:
+    radial-gradient(
+      circle at 15% 10%,
+      rgb(180 200 216 / 28%),
+      transparent 32rem
+    ),
+    radial-gradient(
+      circle at 90% 15%,
+      rgb(224 200 212 / 24%),
+      transparent 28rem
+    ),
+    radial-gradient(
+      circle at 75% 85%,
+      rgb(208 168 224 / 16%),
+      transparent 30rem
+    ),
+    var(--background);
   color: var(--foreground);
+}
+
+button:not(:disabled) {
+  cursor: pointer;
+}
+
+::selection {
+  background: var(--joy-soft-lavender);
+  color: var(--joy-night);
 }
