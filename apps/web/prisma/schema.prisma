@@ -82,6 +82,8 @@ model Interest {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@map("interest")
 }
 
 model UserProfile {
@@ -92,6 +94,8 @@ model UserProfile {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@map("user_profile")
 }
 
 model UserInterest {
@@ -106,6 +110,7 @@ model UserInterest {
 
   @@id([userId, interestKey])
   @@index([interestKey])
+  @@map("user_interest")
 }
 
 model Activity {
@@ -140,6 +145,8 @@ model Activity {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@map("activity")
 }
 
 model User {
