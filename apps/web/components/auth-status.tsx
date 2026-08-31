@@ -21,6 +21,7 @@ export function AuthStatus() {
       return;
     }
 
+    setIsSigningOut(false);
     router.refresh();
   }
 

@@ -61,57 +61,74 @@ const prisma = new PrismaClient({
 const interests = [
   {
     key: InterestKey.FRIENDS,
-    label: "Friends",
+    label: "Friends & Connection",
+    description:
+      "Spend time with people you care about or strengthen your connections.",
     sortOrder: 1,
   },
   {
     key: InterestKey.FUN,
     label: "Fun",
+    description:
+      "Do something playful, enjoyable, or simply because it sounds fun.",
     sortOrder: 2,
   },
   {
     key: InterestKey.MOVEMENT,
     label: "Movement",
+    description: "Get up, move around, stretch, walk, or do something active.",
     sortOrder: 3,
   },
   {
     key: InterestKey.CAREER,
     label: "Career",
+    description: "Take a small step toward your work, skills, or career goals.",
     sortOrder: 4,
   },
   {
     key: InterestKey.LEARNING,
     label: "Learning",
+    description: "Explore a topic, practice a skill, or learn something new.",
     sortOrder: 5,
   },
   {
     key: InterestKey.CREATIVITY,
     label: "Creativity",
+    description: "Make, imagine, write, design, or experiment with an idea.",
     sortOrder: 6,
   },
   {
     key: InterestKey.EXPLORATION,
     label: "Exploration",
+    description:
+      "Look around, go somewhere, or discover something beyond your usual routine.",
     sortOrder: 7,
   },
   {
     key: InterestKey.HOME,
-    label: "Home",
+    label: "Home & Everyday Life",
+    description:
+      "Do something small for your space, surroundings, or everyday routine.",
     sortOrder: 8,
   },
   {
     key: InterestKey.REST,
-    label: "Rest",
+    label: "Rest & Recharge",
+    description: "Slow down, reset, or enjoy a little quiet time.",
     sortOrder: 9,
   },
   {
     key: InterestKey.PERSONAL_PROJECTS,
-    label: "Personal projects",
+    label: "Personal Projects",
+    description:
+      "Make progress on something you've chosen to build, create, or pursue.",
     sortOrder: 10,
   },
   {
     key: InterestKey.NEW_EXPERIENCES,
-    label: "New experiences",
+    label: "New Experiences",
+    description:
+      "Try something unfamiliar, different, or outside your usual routine.",
     sortOrder: 11,
   },
 ];
@@ -134,6 +151,7 @@ async function seedInterests() {
       },
       update: {
         label: interest.label,
+        description: interest.description,
         sortOrder: interest.sortOrder,
       },
       create: interest,

@@ -1,6 +1,31 @@
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
+
+import { auth } from "@/lib/auth";
+import prisma from "@/lib/prisma";
+
 const contextLabels = ["Time", "Energy", "Interests", "Your situation"];
 
-export default function Home() {
+export default async function Home() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (session) {
+    const profile = await prisma.userProfile.findUnique({
+      where: {
+        userId: session.user.id,
+      },
+      select: {
+        onboardingCompleted: true,
+      },
+    });
+
+    if (!profile?.onboardingCompleted) {
+      redirect("/onboarding");
+    }
+  }
+
   return (
     <main className="flex-1 px-6 py-14 sm:py-16">
       <section className="mx-auto flex min-h-[calc(100vh-16rem)] w-full max-w-4xl items-center justify-center text-center">
