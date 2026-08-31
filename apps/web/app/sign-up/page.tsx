@@ -125,7 +125,7 @@ export default function SignUpPage() {
                   htmlFor="name"
                   className="mb-1.5 block text-sm font-medium text-ink"
                 >
-                  Name
+                  Name or Nickname
                 </label>
 
                 <input
@@ -137,6 +137,10 @@ export default function SignUpPage() {
                   onChange={(event) => setName(event.target.value)}
                   className="w-full rounded-xl border border-line bg-white px-3 py-2.5 text-ink outline-none transition focus:border-joy-purple focus:ring-4 focus:ring-joy-soft-lavender/25"
                 />
+
+                <p className="mt-1.5 text-xs text-muted">
+                  This is what JoyCue will call you.
+                </p>
               </div>
 
               <div>
