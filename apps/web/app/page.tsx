@@ -1,5 +1,6 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import Link from "next/link";
 
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
@@ -80,6 +81,13 @@ export default async function Home() {
                 A recommendation should fit the moment you are actually in,
                 rather than asking you to completely change it.
               </p>
+
+              <Link
+                href="/recommend"
+                className="bg-joy-gradient mt-7 inline-flex rounded-full px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-joy-purple"
+              >
+                Find something for me
+              </Link>
             </div>
           </div>
         </div>
