@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type SyntheticEvent } from "react";
 
 import {
   type BudgetPreference,
   type EnergyLevel,
   type LocationPreference,
+  normalizeRecommendationContextText,
+  type RecommendationContext,
   type TimePreference,
 } from "@/lib/recommendation-context";
 
@@ -13,6 +15,19 @@ type Option<T extends string> = {
   value: T;
   label: string;
   description: string;
+};
+
+type RecommendationResult = {
+  activity: {
+    id: string;
+    title: string;
+    description: string | null;
+    firstStep: string;
+  };
+  ranking: {
+    finalScore: number;
+    reasonCodes: string[];
+  };
 };
 
 const timeOptions: Option<TimePreference>[] = [
@@ -108,41 +123,118 @@ export function RecommendationContextForm() {
   const [location, setLocation] = useState<LocationPreference | null>(null);
   const [budget, setBudget] = useState<BudgetPreference | null>(null);
   const [text, setText] = useState("");
+  const [recommendations, setRecommendations] = useState<
+    RecommendationResult[]
+  >([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  function clearRecommendationResults() {
+    setRecommendations([]);
+    setError(null);
+  }
 
   const isComplete =
     time !== null && energy !== null && location !== null && budget !== null;
+
+  async function handleSubmit(event: SyntheticEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (!time || !energy || !location || !budget || isSubmitting) {
+      return;
+    }
+
+    const context: RecommendationContext = {
+      time,
+      energy,
+      location,
+      budget,
+      text: normalizeRecommendationContextText(text),
+    };
+
+    setError(null);
+    setRecommendations([]);
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch("/api/recommendations", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(context),
+      });
+
+      const data = (await response.json()) as {
+        recommendations?: RecommendationResult[];
+        error?: string;
+      };
+
+      if (!response.ok) {
+        setError(data.error ?? "We couldn't find recommendations right now.");
+        return;
+      }
+
+      if (!Array.isArray(data.recommendations)) {
+        throw new Error("Invalid recommendation response.");
+      }
+
+      setRecommendations(data.recommendations);
+    } catch {
+      setError(
+        "Something went wrong while finding recommendations. Please try again.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
 
   return (
     <div className="overflow-hidden rounded-3xl border border-line bg-white/85 shadow-[0_20px_60px_-35px_rgba(46,62,110,0.45)] backdrop-blur-sm">
       <div className="bg-joy-gradient h-1.5 w-full" />
 
-      <div className="space-y-10 px-6 py-8 sm:px-10 sm:py-10">
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-10 px-6 py-8 sm:px-10 sm:py-10"
+      >
         <ContextSection
           title="How much time do you have?"
           options={timeOptions}
           selectedValue={time}
-          onSelect={setTime}
+          onSelect={(value) => {
+            setTime(value);
+            clearRecommendationResults();
+          }}
         />
 
         <ContextSection
           title="How's your energy?"
           options={energyOptions}
           selectedValue={energy}
-          onSelect={setEnergy}
+          onSelect={(value) => {
+            setEnergy(value);
+            clearRecommendationResults();
+          }}
         />
 
         <ContextSection
           title="Would you rather stay in or go out?"
           options={locationOptions}
           selectedValue={location}
-          onSelect={setLocation}
+          onSelect={(value) => {
+            setLocation(value);
+            clearRecommendationResults();
+          }}
         />
 
         <ContextSection
           title="What works for your budget?"
           options={budgetOptions}
           selectedValue={budget}
-          onSelect={setBudget}
+          onSelect={(value) => {
+            setBudget(value);
+            clearRecommendationResults();
+          }}
         />
 
         <div className="border-t border-line pt-8">
@@ -161,7 +253,10 @@ export function RecommendationContextForm() {
           <textarea
             id="recommendation-context"
             value={text}
-            onChange={(event) => setText(event.target.value)}
+            onChange={(event) => {
+              setText(event.target.value);
+              clearRecommendationResults();
+            }}
             maxLength={500}
             rows={4}
             placeholder="Tell JoyCue a little about your situation..."
@@ -174,27 +269,72 @@ export function RecommendationContextForm() {
         </div>
 
         <div className="border-t border-line pt-6">
-          {isComplete ? (
-            <div
-              role="status"
-              className="rounded-2xl border border-joy-soft-lavender bg-gradient-to-br from-joy-mist/50 to-joy-soft-lavender/50 px-5 py-4"
-            >
-              <p className="font-semibold text-joy-night">
-                Your context is ready.
-              </p>
+          <button
+            type="submit"
+            disabled={!isComplete || isSubmitting}
+            className="bg-joy-gradient w-full rounded-xl px-6 py-3.5 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-joy-purple focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+          >
+            {isSubmitting ? "Finding something..." : "Find something for me"}
+          </button>
 
-              <p className="mt-1 text-sm leading-6 text-muted">
-                JoyCue has the information it needs to look for something that
-                fits this moment.
-              </p>
-            </div>
-          ) : (
-            <p className="text-sm text-muted">
+          {!isComplete && (
+            <p className="mt-3 text-sm text-muted">
               Choose one option from each section to continue.
             </p>
           )}
+
+          {error && (
+            <p
+              role="alert"
+              className="mt-5 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+            >
+              {error}
+            </p>
+          )}
         </div>
-      </div>
+
+        {recommendations.length > 0 && (
+          <section className="border-t border-line pt-8">
+            <div>
+              <p className="text-sm font-semibold tracking-[0.16em] text-joy-purple uppercase">
+                Your matches
+              </p>
+
+              <h2 className="mt-2 text-2xl font-semibold text-joy-night">
+                Here are a few things that fit.
+              </h2>
+            </div>
+
+            <div className="mt-5 space-y-3">
+              {recommendations.map((recommendation, index) => (
+                <article
+                  key={recommendation.activity.id}
+                  className="rounded-2xl border border-line bg-white/70 p-5"
+                >
+                  <p className="text-xs font-semibold tracking-[0.14em] text-muted uppercase">
+                    Option {index + 1}
+                  </p>
+
+                  <h3 className="mt-2 text-lg font-semibold text-joy-night">
+                    {recommendation.activity.title}
+                  </h3>
+
+                  {recommendation.activity.description && (
+                    <p className="mt-2 text-sm leading-6 text-muted">
+                      {recommendation.activity.description}
+                    </p>
+                  )}
+
+                  <p className="mt-4 text-sm leading-6 text-joy-indigo">
+                    <span className="font-semibold">First step:</span>{" "}
+                    {recommendation.activity.firstStep}
+                  </p>
+                </article>
+              ))}
+            </div>
+          </section>
+        )}
+      </form>
     </div>
   );
 }
