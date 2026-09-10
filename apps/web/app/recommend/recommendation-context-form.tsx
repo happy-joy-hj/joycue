@@ -10,6 +10,10 @@ import {
   type RecommendationContext,
   type TimePreference,
 } from "@/lib/recommendation-context";
+import {
+  getRecommendationReasonLabel,
+  type RecommendationReasonCode,
+} from "@/lib/recommendation-reasons";
 
 type Option<T extends string> = {
   value: T;
@@ -26,7 +30,7 @@ type RecommendationResult = {
   };
   ranking: {
     finalScore: number;
-    reasonCodes: string[];
+    reasonCodes: RecommendationReasonCode[];
   };
 };
 
@@ -325,7 +329,28 @@ export function RecommendationContextForm() {
                     </p>
                   )}
 
-                  <p className="mt-4 text-sm leading-6 text-joy-indigo">
+                  {recommendation.ranking.reasonCodes.length > 0 && (
+                    <div className="mt-4">
+                      <p className="text-sm font-semibold text-joy-night">
+                        Why this fits
+                      </p>
+
+                      <ul className="mt-2 flex flex-wrap gap-2">
+                        {recommendation.ranking.reasonCodes.map(
+                          (reasonCode) => (
+                            <li
+                              key={reasonCode}
+                              className="rounded-full border border-joy-soft-lavender bg-joy-mist/50 px-3 py-1.5 text-xs font-medium text-joy-indigo"
+                            >
+                              ✓ {getRecommendationReasonLabel(reasonCode)}
+                            </li>
+                          ),
+                        )}
+                      </ul>
+                    </div>
+                  )}
+
+                  <p className="mt-5 text-sm leading-6 text-joy-indigo">
                     <span className="font-semibold">First step:</span>{" "}
                     {recommendation.activity.firstStep}
                   </p>

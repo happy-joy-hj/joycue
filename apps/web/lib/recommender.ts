@@ -1,4 +1,5 @@
 import type { RecommendationContext } from "@/lib/recommendation-context";
+import type { RecommendationReasonCode } from "@/lib/recommendation-reasons";
 
 export type RecommenderActivity = {
   id: string;
@@ -49,21 +50,13 @@ export type ScoreBreakdown = {
   interest?: number;
 };
 
-export type ReasonCode =
-  | "TIME_MATCH"
-  | "ENERGY_MATCH"
-  | "EASY_TO_START"
-  | "LOCATION_MATCH"
-  | "BUDGET_MATCH"
-  | "INTEREST_MATCH";
-
 export type RankedActivity = {
   activity_id: string;
   raw_score: number;
   repetition_penalty: number;
   final_score: number;
   score_breakdown: ScoreBreakdown;
-  reason_codes: ReasonCode[];
+  reason_codes: RecommendationReasonCode[];
 };
 
 export type RecommenderResponse = {
