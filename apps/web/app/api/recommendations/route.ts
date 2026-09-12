@@ -11,6 +11,7 @@ import {
 } from "@/lib/recommendation-context";
 import {
   requestRecommendations,
+  type RecommendationHistoryItem,
   type RecommenderActivity,
 } from "@/lib/recommender";
 
@@ -63,7 +64,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const [userInterests, activities] = await Promise.all([
+  const [userInterests, activities, recentSessions] = await Promise.all([
     prisma.userInterest.findMany({
       where: {
         userId: session.user.id,
@@ -78,6 +79,27 @@ export async function POST(request: Request) {
         source: ActivitySource.STARTER,
       },
     }),
+    prisma.recommendationSession.findMany({
+      where: {
+        userId: session.user.id,
+      },
+      orderBy: [
+        {
+          createdAt: "desc",
+        },
+        {
+          id: "desc",
+        },
+      ],
+      take: 3,
+      select: {
+        recommendations: {
+          select: {
+            activityId: true,
+          },
+        },
+      },
+    }),
   ]);
 
   if (activities.length === 0) {
@@ -90,6 +112,14 @@ export async function POST(request: Request) {
       },
     );
   }
+
+  const history: RecommendationHistoryItem[] = recentSessions.flatMap(
+    (recommendationSession, index) =>
+      recommendationSession.recommendations.map((recommendation) => ({
+        activity_id: recommendation.activityId,
+        sessions_ago: index + 1,
+      })),
+  );
 
   const candidates: RecommenderActivity[] = activities.map((activity) => ({
     id: activity.id,
@@ -122,7 +152,7 @@ export async function POST(request: Request) {
     const result = await requestRecommendations({
       context,
       interests: userInterests.map((userInterest) => userInterest.interestKey),
-      history: [],
+      history,
       candidates,
       limit: 3,
     });
@@ -166,6 +196,20 @@ export async function POST(request: Request) {
         },
       };
     });
+
+    if (recommendations.length > 0) {
+      await prisma.recommendationSession.create({
+        data: {
+          userId: session.user.id,
+          recommendations: {
+            create: recommendations.map((recommendation, index) => ({
+              activityId: recommendation.activity.id,
+              rank: index + 1,
+            })),
+          },
+        },
+      });
+    }
 
     return Response.json({
       recommendations,
