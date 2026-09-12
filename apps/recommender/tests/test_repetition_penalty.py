@@ -99,11 +99,15 @@ def test_four_or_more_sessions_ago_has_no_penalty():
     )
 
 
-def test_most_recent_history_entry_determines_penalty():
+def test_multiple_recent_appearances_accumulate_penalties():
     history = [
         RecommendationHistoryItem(
             activity_id="act_006",
             sessions_ago=3,
+        ),
+        RecommendationHistoryItem(
+            activity_id="act_006",
+            sessions_ago=2,
         ),
         RecommendationHistoryItem(
             activity_id="act_006",
@@ -116,5 +120,30 @@ def test_most_recent_history_entry_determines_penalty():
             "act_006",
             history,
         )
-        == 15.0
+        == 30.0
+    )
+
+
+def test_only_matching_activity_penalties_accumulate():
+    history = [
+        RecommendationHistoryItem(
+            activity_id="act_006",
+            sessions_ago=1,
+        ),
+        RecommendationHistoryItem(
+            activity_id="act_006",
+            sessions_ago=2,
+        ),
+        RecommendationHistoryItem(
+            activity_id="act_019",
+            sessions_ago=1,
+        ),
+    ]
+
+    assert (
+        calculate_repetition_penalty(
+            "act_006",
+            history,
+        )
+        == 25.0
     )
