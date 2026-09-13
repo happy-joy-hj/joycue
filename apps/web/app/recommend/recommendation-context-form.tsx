@@ -472,45 +472,45 @@ export function RecommendationContextForm() {
                     >
                       Not for me
                     </button>
-
-                    {actionsByRecommendationId[recommendation.id] ===
-                      "DO_NOW" && (
-                      <div className="mt-5 rounded-2xl border border-joy-soft-lavender bg-joy-mist/40 p-4">
-                        <p className="text-sm font-semibold text-joy-night">
-                          Here&apos;s your simple plan
-                        </p>
-
-                        <ol className="mt-3 space-y-2">
-                          {recommendation.activity.planSteps.map(
-                            (step, stepIndex) => (
-                              <li
-                                key={`${recommendation.id}-step-${stepIndex}`}
-                                className="flex gap-3 text-sm leading-6 text-joy-indigo"
-                              >
-                                <span className="font-semibold">
-                                  {stepIndex + 1}.
-                                </span>
-                                <span>{step}</span>
-                              </li>
-                            ),
-                          )}
-                        </ol>
-                      </div>
-                    )}
-
-                    {actionsByRecommendationId[recommendation.id] ===
-                      "NOT_FOR_ME" && (
-                      <p className="mt-4 text-sm font-medium text-muted">
-                        Got it. Your response was recorded.
-                      </p>
-                    )}
-
-                    {actionErrors[recommendation.id] && (
-                      <p role="alert" className="mt-4 text-sm text-red-700">
-                        {actionErrors[recommendation.id]}
-                      </p>
-                    )}
                   </div>
+
+                  {actionsByRecommendationId[recommendation.id] ===
+                    "DO_NOW" && (
+                    <div className="mt-5 rounded-2xl border border-joy-soft-lavender bg-joy-mist/40 p-4">
+                      <p className="text-sm font-semibold text-joy-night">
+                        Here&apos;s your simple plan
+                      </p>
+
+                      <ol className="mt-3 space-y-2">
+                        {recommendation.activity.planSteps.map(
+                          (step, stepIndex) => (
+                            <li
+                              key={`${recommendation.id}-step-${stepIndex}`}
+                              className="flex gap-3 text-sm leading-6 text-joy-indigo"
+                            >
+                              <span className="font-semibold">
+                                {stepIndex + 1}.
+                              </span>
+                              <span>{step}</span>
+                            </li>
+                          ),
+                        )}
+                      </ol>
+                    </div>
+                  )}
+
+                  {actionsByRecommendationId[recommendation.id] ===
+                    "NOT_FOR_ME" && (
+                    <p className="mt-4 text-sm font-medium text-muted">
+                      Got it. Your response was recorded.
+                    </p>
+                  )}
+
+                  {actionErrors[recommendation.id] && (
+                    <p role="alert" className="mt-4 text-sm text-red-700">
+                      {actionErrors[recommendation.id]}
+                    </p>
+                  )}
                 </article>
               ))}
             </div>

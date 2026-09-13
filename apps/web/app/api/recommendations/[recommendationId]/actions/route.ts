@@ -72,6 +72,12 @@ export async function POST(
       },
       select: {
         id: true,
+        actions: {
+          select: {
+            id: true,
+          },
+          take: 1,
+        },
       },
     });
 
@@ -82,6 +88,17 @@ export async function POST(
         },
         {
           status: 404,
+        },
+      );
+    }
+
+    if (recommendation.actions.length > 0) {
+      return Response.json(
+        {
+          error: "An action has already been recorded for this recommendation.",
+        },
+        {
+          status: 409,
         },
       );
     }
