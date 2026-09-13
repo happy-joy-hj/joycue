@@ -21,12 +21,16 @@ type Option<T extends string> = {
   description: string;
 };
 
+type RecommendationActionType = "DO_NOW" | "NOT_FOR_ME";
+
 type RecommendationResult = {
+  id: string;
   activity: {
     id: string;
     title: string;
     description: string | null;
     firstStep: string;
+    planSteps: string[];
   };
   ranking: {
     finalScore: number;
@@ -127,19 +131,91 @@ export function RecommendationContextForm() {
   const [location, setLocation] = useState<LocationPreference | null>(null);
   const [budget, setBudget] = useState<BudgetPreference | null>(null);
   const [text, setText] = useState("");
+
   const [recommendations, setRecommendations] = useState<
     RecommendationResult[]
   >([]);
+
   const [isSubmitting, setIsSubmitting] = useState(false);
+
   const [error, setError] = useState<string | null>(null);
+
+  const [pendingActionRecommendationId, setPendingActionRecommendationId] =
+    useState<string | null>(null);
+
+  const [actionsByRecommendationId, setActionsByRecommendationId] = useState<
+    Record<string, RecommendationActionType>
+  >({});
+
+  const [actionErrors, setActionErrors] = useState<Record<string, string>>({});
 
   function clearRecommendationResults() {
     setRecommendations([]);
     setError(null);
+    setPendingActionRecommendationId(null);
+    setActionsByRecommendationId({});
+    setActionErrors({});
   }
 
   const isComplete =
     time !== null && energy !== null && location !== null && budget !== null;
+
+  async function handleRecommendationAction(
+    recommendationId: string,
+    type: RecommendationActionType,
+  ) {
+    if (pendingActionRecommendationId === recommendationId) {
+      return;
+    }
+
+    setPendingActionRecommendationId(recommendationId);
+
+    setActionErrors((current) => {
+      const next = { ...current };
+      delete next[recommendationId];
+      return next;
+    });
+
+    try {
+      const response = await fetch(
+        `/api/recommendations/${recommendationId}/actions`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            type,
+          }),
+        },
+      );
+
+      const data = (await response.json()) as {
+        error?: string;
+      };
+
+      if (!response.ok) {
+        setActionErrors((current) => ({
+          ...current,
+          [recommendationId]: data.error ?? "We couldn't record that action.",
+        }));
+
+        return;
+      }
+
+      setActionsByRecommendationId((current) => ({
+        ...current,
+        [recommendationId]: type,
+      }));
+    } catch {
+      setActionErrors((current) => ({
+        ...current,
+        [recommendationId]: "Something went wrong while recording that action.",
+      }));
+    } finally {
+      setPendingActionRecommendationId(null);
+    }
+  }
 
   async function handleSubmit(event: SyntheticEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -158,6 +234,9 @@ export function RecommendationContextForm() {
 
     setError(null);
     setRecommendations([]);
+    setPendingActionRecommendationId(null);
+    setActionsByRecommendationId({});
+    setActionErrors({});
     setIsSubmitting(true);
 
     try {
@@ -312,7 +391,7 @@ export function RecommendationContextForm() {
             <div className="mt-5 space-y-3">
               {recommendations.map((recommendation, index) => (
                 <article
-                  key={recommendation.activity.id}
+                  key={recommendation.id}
                   className="rounded-2xl border border-line bg-white/70 p-5"
                 >
                   <p className="text-xs font-semibold tracking-[0.14em] text-muted uppercase">
@@ -354,6 +433,84 @@ export function RecommendationContextForm() {
                     <span className="font-semibold">First step:</span>{" "}
                     {recommendation.activity.firstStep}
                   </p>
+
+                  <div className="mt-5 flex flex-wrap gap-3">
+                    <button
+                      type="button"
+                      disabled={
+                        pendingActionRecommendationId === recommendation.id ||
+                        actionsByRecommendationId[recommendation.id] !==
+                          undefined
+                      }
+                      onClick={() =>
+                        handleRecommendationAction(recommendation.id, "DO_NOW")
+                      }
+                      className="bg-joy-gradient rounded-xl px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      {pendingActionRecommendationId === recommendation.id
+                        ? "Saving..."
+                        : actionsByRecommendationId[recommendation.id] ===
+                            "DO_NOW"
+                          ? "Let's do this"
+                          : "Do this"}
+                    </button>
+
+                    <button
+                      type="button"
+                      disabled={
+                        pendingActionRecommendationId === recommendation.id ||
+                        actionsByRecommendationId[recommendation.id] !==
+                          undefined
+                      }
+                      onClick={() =>
+                        handleRecommendationAction(
+                          recommendation.id,
+                          "NOT_FOR_ME",
+                        )
+                      }
+                      className="rounded-xl border border-line bg-white px-4 py-2.5 text-sm font-semibold text-joy-indigo transition hover:border-joy-soft-lavender hover:bg-joy-mist/30 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      Not for me
+                    </button>
+                  </div>
+
+                  {actionsByRecommendationId[recommendation.id] ===
+                    "DO_NOW" && (
+                    <div className="mt-5 rounded-2xl border border-joy-soft-lavender bg-joy-mist/40 p-4">
+                      <p className="text-sm font-semibold text-joy-night">
+                        Here&apos;s your simple plan
+                      </p>
+
+                      <ol className="mt-3 space-y-2">
+                        {recommendation.activity.planSteps.map(
+                          (step, stepIndex) => (
+                            <li
+                              key={`${recommendation.id}-step-${stepIndex}`}
+                              className="flex gap-3 text-sm leading-6 text-joy-indigo"
+                            >
+                              <span className="font-semibold">
+                                {stepIndex + 1}.
+                              </span>
+                              <span>{step}</span>
+                            </li>
+                          ),
+                        )}
+                      </ol>
+                    </div>
+                  )}
+
+                  {actionsByRecommendationId[recommendation.id] ===
+                    "NOT_FOR_ME" && (
+                    <p className="mt-4 text-sm font-medium text-muted">
+                      Got it. Your response was recorded.
+                    </p>
+                  )}
+
+                  {actionErrors[recommendation.id] && (
+                    <p role="alert" className="mt-4 text-sm text-red-700">
+                      {actionErrors[recommendation.id]}
+                    </p>
+                  )}
                 </article>
               ))}
             </div>
