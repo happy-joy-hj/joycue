@@ -72,6 +72,11 @@ enum ScreenMode {
   SCREEN_REQUIRED
 }
 
+enum RecommendationActionType {
+  DO_NOW
+  NOT_FOR_ME
+}
+
 model Interest {
   key         InterestKey @id
   label       String
@@ -170,13 +175,27 @@ model Recommendation {
   activityId String
   rank       Int
 
-  session  RecommendationSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  activity Activity              @relation(fields: [activityId], references: [id], onDelete: Restrict)
+  session  RecommendationSession  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  activity Activity               @relation(fields: [activityId], references: [id], onDelete: Restrict)
+  actions  RecommendationAction[]
 
   @@unique([sessionId, activityId])
   @@unique([sessionId, rank])
   @@index([activityId])
   @@map("recommendation")
+}
+
+model RecommendationAction {
+  id               String                   @id @default(cuid())
+  recommendationId String
+  type             RecommendationActionType
+
+  recommendation Recommendation @relation(fields: [recommendationId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([recommendationId, createdAt])
+  @@map("recommendation_action")
 }
 
 model User {

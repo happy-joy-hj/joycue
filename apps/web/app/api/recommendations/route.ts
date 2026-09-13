@@ -197,22 +197,61 @@ export async function POST(request: Request) {
       };
     });
 
-    if (recommendations.length > 0) {
-      await prisma.recommendationSession.create({
-        data: {
-          userId: session.user.id,
-          recommendations: {
-            create: recommendations.map((recommendation, index) => ({
-              activityId: recommendation.activity.id,
-              rank: index + 1,
-            })),
-          },
-        },
+    if (recommendations.length === 0) {
+      return Response.json({
+        recommendations,
       });
     }
 
+    const recommendationSession = await prisma.recommendationSession.create({
+      data: {
+        userId: session.user.id,
+        recommendations: {
+          create: recommendations.map((recommendation, index) => ({
+            activityId: recommendation.activity.id,
+            rank: index + 1,
+          })),
+        },
+      },
+      include: {
+        recommendations: {
+          orderBy: {
+            rank: "asc",
+          },
+          select: {
+            id: true,
+            rank: true,
+          },
+        },
+      },
+    });
+
+    const recommendationIdsByRank = new Map(
+      recommendationSession.recommendations.map((recommendation) => [
+        recommendation.rank,
+        recommendation.id,
+      ]),
+    );
+
+    const persistedRecommendations = recommendations.map(
+      (recommendation, index) => {
+        const id = recommendationIdsByRank.get(index + 1);
+
+        if (!id) {
+          throw new Error(
+            `Missing persisted recommendation for rank ${index + 1}.`,
+          );
+        }
+
+        return {
+          id,
+          ...recommendation,
+        };
+      },
+    );
+
     return Response.json({
-      recommendations,
+      recommendations: persistedRecommendations,
     });
   } catch (error) {
     console.error("Recommendation request failed:", error);
