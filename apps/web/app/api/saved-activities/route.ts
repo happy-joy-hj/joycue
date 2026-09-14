@@ -1,3 +1,4 @@
+import { ActivitySource } from "@/app/generated/prisma/client";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 
@@ -50,6 +51,7 @@ export async function POST(request: Request) {
       where: {
         id: activityId,
         isActive: true,
+        source: ActivitySource.STARTER,
       },
       select: {
         id: true,

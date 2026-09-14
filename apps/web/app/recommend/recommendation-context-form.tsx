@@ -316,6 +316,8 @@ export function RecommendationContextForm() {
     setPendingActionRecommendationId(null);
     setActionsByRecommendationId({});
     setActionErrors({});
+    setPendingSaveActivityId(null);
+    setSaveErrors({});
     setIsSubmitting(true);
 
     try {
