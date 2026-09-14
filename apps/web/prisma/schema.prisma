@@ -150,10 +150,28 @@ model Activity {
 
   recommendations Recommendation[]
 
+  savedBy SavedActivity[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@map("activity")
+}
+
+model SavedActivity {
+  id         String @id @default(cuid())
+  userId     String
+  activityId String
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  activity Activity @relation(fields: [activityId], references: [id], onDelete: Restrict)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, activityId])
+  @@index([userId, createdAt])
+  @@index([activityId])
+  @@map("saved_activity")
 }
 
 model RecommendationSession {
@@ -213,6 +231,8 @@ model User {
   userInterests UserInterest[]
 
   recommendationSessions RecommendationSession[]
+
+  savedActivities SavedActivity[]
 
   @@unique([email])
   @@map("user")

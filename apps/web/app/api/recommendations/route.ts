@@ -64,43 +64,52 @@ export async function POST(request: Request) {
     );
   }
 
-  const [userInterests, activities, recentSessions] = await Promise.all([
-    prisma.userInterest.findMany({
-      where: {
-        userId: session.user.id,
-      },
-      select: {
-        interestKey: true,
-      },
-    }),
-    prisma.activity.findMany({
-      where: {
-        isActive: true,
-        source: ActivitySource.STARTER,
-      },
-    }),
-    prisma.recommendationSession.findMany({
-      where: {
-        userId: session.user.id,
-      },
-      orderBy: [
-        {
-          createdAt: "desc",
+  const [userInterests, activities, recentSessions, savedActivities] =
+    await Promise.all([
+      prisma.userInterest.findMany({
+        where: {
+          userId: session.user.id,
         },
-        {
-          id: "desc",
+        select: {
+          interestKey: true,
         },
-      ],
-      take: 3,
-      select: {
-        recommendations: {
-          select: {
-            activityId: true,
+      }),
+      prisma.activity.findMany({
+        where: {
+          isActive: true,
+          source: ActivitySource.STARTER,
+        },
+      }),
+      prisma.recommendationSession.findMany({
+        where: {
+          userId: session.user.id,
+        },
+        orderBy: [
+          {
+            createdAt: "desc",
+          },
+          {
+            id: "desc",
+          },
+        ],
+        take: 3,
+        select: {
+          recommendations: {
+            select: {
+              activityId: true,
+            },
           },
         },
-      },
-    }),
-  ]);
+      }),
+      prisma.savedActivity.findMany({
+        where: {
+          userId: session.user.id,
+        },
+        select: {
+          activityId: true,
+        },
+      }),
+    ]);
 
   if (activities.length === 0) {
     return Response.json(
@@ -112,6 +121,10 @@ export async function POST(request: Request) {
       },
     );
   }
+
+  const savedActivityIds = new Set(
+    savedActivities.map((savedActivity) => savedActivity.activityId),
+  );
 
   const history: RecommendationHistoryItem[] = recentSessions.flatMap(
     (recommendationSession, index) =>
@@ -187,6 +200,7 @@ export async function POST(request: Request) {
           costMin: activity.costMin,
           costMax: activity.costMax,
         },
+        isSaved: savedActivityIds.has(activity.id),
         ranking: {
           rawScore: rankedActivity.raw_score,
           repetitionPenalty: rankedActivity.repetition_penalty,

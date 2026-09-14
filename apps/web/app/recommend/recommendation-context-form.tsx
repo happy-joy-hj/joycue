@@ -32,6 +32,7 @@ type RecommendationResult = {
     firstStep: string;
     planSteps: string[];
   };
+  isSaved: boolean;
   ranking: {
     finalScore: number;
     reasonCodes: RecommendationReasonCode[];
@@ -149,12 +150,20 @@ export function RecommendationContextForm() {
 
   const [actionErrors, setActionErrors] = useState<Record<string, string>>({});
 
+  const [pendingSaveActivityId, setPendingSaveActivityId] = useState<
+    string | null
+  >(null);
+
+  const [saveErrors, setSaveErrors] = useState<Record<string, string>>({});
+
   function clearRecommendationResults() {
     setRecommendations([]);
     setError(null);
     setPendingActionRecommendationId(null);
     setActionsByRecommendationId({});
     setActionErrors({});
+    setPendingSaveActivityId(null);
+    setSaveErrors({});
   }
 
   const isComplete =
@@ -217,6 +226,76 @@ export function RecommendationContextForm() {
     }
   }
 
+  async function handleSavedActivityToggle(
+    recommendationId: string,
+    activityId: string,
+    isSaved: boolean,
+  ) {
+    if (pendingSaveActivityId === activityId) {
+      return;
+    }
+
+    setPendingSaveActivityId(activityId);
+
+    setSaveErrors((current) => {
+      const next = { ...current };
+      delete next[activityId];
+      return next;
+    });
+
+    try {
+      const response = isSaved
+        ? await fetch(`/api/saved-activities/${activityId}`, {
+            method: "DELETE",
+          })
+        : await fetch("/api/saved-activities", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              activityId,
+            }),
+          });
+
+      const data = (await response.json()) as {
+        error?: string;
+      };
+
+      if (!response.ok) {
+        setSaveErrors((current) => ({
+          ...current,
+          [activityId]:
+            data.error ??
+            (isSaved
+              ? "We couldn't remove this saved activity."
+              : "We couldn't save this activity."),
+        }));
+
+        return;
+      }
+
+      setRecommendations((current) =>
+        current.map((recommendation) =>
+          recommendation.id === recommendationId
+            ? {
+                ...recommendation,
+                isSaved: !isSaved,
+              }
+            : recommendation,
+        ),
+      );
+    } catch {
+      setSaveErrors((current) => ({
+        ...current,
+        [activityId]:
+          "Something went wrong while updating your saved activities.",
+      }));
+    } finally {
+      setPendingSaveActivityId(null);
+    }
+  }
+
   async function handleSubmit(event: SyntheticEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -237,6 +316,8 @@ export function RecommendationContextForm() {
     setPendingActionRecommendationId(null);
     setActionsByRecommendationId({});
     setActionErrors({});
+    setPendingSaveActivityId(null);
+    setSaveErrors({});
     setIsSubmitting(true);
 
     try {
@@ -472,6 +553,29 @@ export function RecommendationContextForm() {
                     >
                       Not for me
                     </button>
+
+                    <button
+                      type="button"
+                      disabled={
+                        pendingSaveActivityId === recommendation.activity.id
+                      }
+                      onClick={() =>
+                        handleSavedActivityToggle(
+                          recommendation.id,
+                          recommendation.activity.id,
+                          recommendation.isSaved,
+                        )
+                      }
+                      className="rounded-xl border border-line bg-white px-4 py-2.5 text-sm font-semibold text-joy-indigo transition hover:border-joy-soft-lavender hover:bg-joy-mist/30 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      {pendingSaveActivityId === recommendation.activity.id
+                        ? recommendation.isSaved
+                          ? "Removing..."
+                          : "Saving..."
+                        : recommendation.isSaved
+                          ? "Saved"
+                          : "Save for later"}
+                    </button>
                   </div>
 
                   {actionsByRecommendationId[recommendation.id] ===
@@ -509,6 +613,12 @@ export function RecommendationContextForm() {
                   {actionErrors[recommendation.id] && (
                     <p role="alert" className="mt-4 text-sm text-red-700">
                       {actionErrors[recommendation.id]}
+                    </p>
+                  )}
+
+                  {saveErrors[recommendation.activity.id] && (
+                    <p role="alert" className="mt-4 text-sm text-red-700">
+                      {saveErrors[recommendation.activity.id]}
                     </p>
                   )}
                 </article>
