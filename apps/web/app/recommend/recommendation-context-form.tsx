@@ -473,13 +473,13 @@ export function RecommendationContextForm() {
               {recommendations.map((recommendation, index) => (
                 <article
                   key={recommendation.id}
-                  className="rounded-2xl border border-line bg-white/70 p-5"
+                  className="rounded-2xl border border-line bg-white/85 p-5 shadow-[0_12px_32px_-26px_rgba(46,62,110,0.5)] transition hover:border-joy-soft-lavender sm:p-6"
                 >
-                  <p className="text-xs font-semibold tracking-[0.14em] text-muted uppercase">
+                  <p className="text-xs font-semibold tracking-[0.14em] text-joy-purple uppercase">
                     Option {index + 1}
                   </p>
 
-                  <h3 className="mt-2 text-lg font-semibold text-joy-night">
+                  <h3 className="mt-2 text-lg font-semibold tracking-tight text-joy-night sm:text-xl">
                     {recommendation.activity.title}
                   </h3>
 
@@ -510,12 +510,17 @@ export function RecommendationContextForm() {
                     </div>
                   )}
 
-                  <p className="mt-5 text-sm leading-6 text-joy-indigo">
-                    <span className="font-semibold">First step:</span>{" "}
-                    {recommendation.activity.firstStep}
-                  </p>
+                  <div className="mt-5 rounded-xl border border-joy-soft-lavender/60 bg-joy-mist/25 px-4 py-3">
+                    <p className="text-xs font-semibold tracking-[0.12em] text-joy-purple uppercase">
+                      First step
+                    </p>
 
-                  <div className="mt-5 flex flex-wrap gap-3">
+                    <p className="mt-1.5 text-sm leading-6 text-joy-indigo">
+                      {recommendation.activity.firstStep}
+                    </p>
+                  </div>
+
+                  <div className="mt-5 flex flex-wrap gap-3 border-t border-line pt-4">
                     <button
                       type="button"
                       disabled={
@@ -526,7 +531,7 @@ export function RecommendationContextForm() {
                       onClick={() =>
                         handleRecommendationAction(recommendation.id, "DO_NOW")
                       }
-                      className="bg-joy-gradient rounded-xl px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="bg-joy-gradient rounded-xl px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-joy-purple focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       {pendingActionRecommendationId === recommendation.id
                         ? "Saving..."
@@ -549,7 +554,7 @@ export function RecommendationContextForm() {
                           "NOT_FOR_ME",
                         )
                       }
-                      className="rounded-xl border border-line bg-white px-4 py-2.5 text-sm font-semibold text-joy-indigo transition hover:border-joy-soft-lavender hover:bg-joy-mist/30 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="rounded-xl border border-line bg-white px-4 py-2.5 text-sm font-semibold text-joy-indigo transition hover:border-joy-soft-lavender hover:bg-surface-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-joy-purple focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       Not for me
                     </button>
@@ -566,7 +571,7 @@ export function RecommendationContextForm() {
                           recommendation.isSaved,
                         )
                       }
-                      className="rounded-xl border border-line bg-white px-4 py-2.5 text-sm font-semibold text-joy-indigo transition hover:border-joy-soft-lavender hover:bg-joy-mist/30 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="rounded-xl border border-line bg-white px-4 py-2.5 text-sm font-semibold text-joy-indigo transition hover:border-joy-soft-lavender hover:bg-surface-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-joy-purple focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       {pendingSaveActivityId === recommendation.activity.id
                         ? recommendation.isSaved
@@ -580,7 +585,7 @@ export function RecommendationContextForm() {
 
                   {actionsByRecommendationId[recommendation.id] ===
                     "DO_NOW" && (
-                    <div className="mt-5 rounded-2xl border border-joy-soft-lavender bg-joy-mist/40 p-4">
+                    <div className="mt-4 rounded-xl border border-joy-soft-lavender/60 bg-joy-mist/25 px-4 py-4">
                       <p className="text-sm font-semibold text-joy-night">
                         Here&apos;s your simple plan
                       </p>
@@ -605,19 +610,31 @@ export function RecommendationContextForm() {
 
                   {actionsByRecommendationId[recommendation.id] ===
                     "NOT_FOR_ME" && (
-                    <p className="mt-4 text-sm font-medium text-muted">
-                      Got it. Your response was recorded.
-                    </p>
+                    <div
+                      role="status"
+                      className="mt-4 rounded-xl border border-line bg-surface-soft px-4 py-3"
+                    >
+                      <p className="text-sm font-medium text-joy-indigo">
+                        Got it. We&apos;ll give this activity less weight in
+                        your next few recommendations.
+                      </p>
+                    </div>
                   )}
 
                   {actionErrors[recommendation.id] && (
-                    <p role="alert" className="mt-4 text-sm text-red-700">
+                    <p
+                      role="alert"
+                      className="mt-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2.5 text-sm text-red-700"
+                    >
                       {actionErrors[recommendation.id]}
                     </p>
                   )}
 
                   {saveErrors[recommendation.activity.id] && (
-                    <p role="alert" className="mt-4 text-sm text-red-700">
+                    <p
+                      role="alert"
+                      className="mt-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2.5 text-sm text-red-700"
+                    >
                       {saveErrors[recommendation.activity.id]}
                     </p>
                   )}

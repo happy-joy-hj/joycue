@@ -86,7 +86,10 @@ export function SavedActivitiesList({
   return (
     <>
       {error && (
-        <p role="alert" className="mt-8 text-center text-sm text-red-700">
+        <p
+          role="alert"
+          className="mt-8 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-center text-sm text-red-700"
+        >
           {error}
         </p>
       )}
@@ -95,33 +98,46 @@ export function SavedActivitiesList({
         {savedActivities.map((savedActivity) => (
           <article
             key={savedActivity.id}
-            className="rounded-2xl border border-line bg-white/80 p-5"
+            className="rounded-2xl border border-line bg-white/85 p-5 shadow-[0_12px_32px_-26px_rgba(46,62,110,0.5)] transition hover:border-joy-soft-lavender sm:p-6"
           >
-            <h2 className="text-lg font-semibold text-joy-night">
-              {savedActivity.activity.title}
-            </h2>
-
-            {savedActivity.activity.description && (
-              <p className="mt-2 text-sm leading-6 text-muted">
-                {savedActivity.activity.description}
+            <div>
+              <p className="text-xs font-semibold tracking-[0.14em] text-joy-purple uppercase">
+                Saved activity
               </p>
-            )}
 
-            <p className="mt-4 text-sm leading-6 text-joy-indigo">
-              <span className="font-semibold">First step:</span>{" "}
-              {savedActivity.activity.firstStep}
-            </p>
+              <h2 className="mt-2 text-lg font-semibold tracking-tight text-joy-night sm:text-xl">
+                {savedActivity.activity.title}
+              </h2>
 
-            <button
-              type="button"
-              disabled={pendingActivityId === savedActivity.activity.id}
-              onClick={() => handleRemove(savedActivity.activity.id)}
-              className="mt-5 rounded-xl border border-line bg-white px-4 py-2.5 text-sm font-semibold text-muted transition hover:border-joy-soft-lavender hover:text-joy-indigo disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {pendingActivityId === savedActivity.activity.id
-                ? "Removing..."
-                : "Remove from saved"}
-            </button>
+              {savedActivity.activity.description && (
+                <p className="mt-2 text-sm leading-6 text-muted">
+                  {savedActivity.activity.description}
+                </p>
+              )}
+            </div>
+
+            <div className="mt-5 rounded-xl border border-joy-soft-lavender/60 bg-joy-mist/25 px-4 py-3">
+              <p className="text-xs font-semibold tracking-[0.12em] text-joy-purple uppercase">
+                First step
+              </p>
+
+              <p className="mt-1.5 text-sm leading-6 text-joy-indigo">
+                {savedActivity.activity.firstStep}
+              </p>
+            </div>
+
+            <div className="mt-5 border-t border-line pt-4">
+              <button
+                type="button"
+                disabled={pendingActivityId === savedActivity.activity.id}
+                onClick={() => handleRemove(savedActivity.activity.id)}
+                className="rounded-xl border border-line bg-white px-4 py-2.5 text-sm font-semibold text-muted transition hover:border-joy-soft-lavender hover:bg-surface-soft hover:text-joy-indigo focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-joy-purple focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {pendingActivityId === savedActivity.activity.id
+                  ? "Removing..."
+                  : "Remove from saved"}
+              </button>
+            </div>
           </article>
         ))}
       </div>
