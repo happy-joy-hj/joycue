@@ -12,6 +12,7 @@ def test_history_item_accepts_valid_values():
 
     assert item.activity_id == "act_006"
     assert item.sessions_ago == 1
+    assert item.not_for_me is False
 
 
 def test_history_item_rejects_empty_activity_id():

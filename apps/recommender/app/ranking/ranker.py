@@ -12,6 +12,7 @@ from app.scoring.interest_score import score_interest
 from app.scoring.repetition_penalty import (
     calculate_repetition_penalty,
 )
+from app.scoring.feedback_penalty import calculate_feedback_penalty
 from app.ranking.candidate_filter import filter_candidates
 from app.explanations.reason_codes import build_reason_codes
 
@@ -112,9 +113,16 @@ def score_activity(
         )
     )
 
+    feedback_penalty = calculate_feedback_penalty(
+        activity.id,
+        recent_history,
+    )
+
     final_score = round(
         max(
-            raw_score - repetition_penalty,
+            raw_score
+            - repetition_penalty
+            - feedback_penalty,
             0.0,
         ),
         2,
@@ -133,6 +141,7 @@ def score_activity(
         activity_id=activity.id,
         raw_score=raw_score,
         repetition_penalty=repetition_penalty,
+        feedback_penalty=feedback_penalty,
         final_score=final_score,
         score_breakdown=breakdown,
         reason_codes=reason_codes,

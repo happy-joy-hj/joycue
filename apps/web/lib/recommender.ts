@@ -31,6 +31,7 @@ export type RecommenderActivity = {
 export type RecommendationHistoryItem = {
   activity_id: string;
   sessions_ago: number;
+  not_for_me: boolean;
 };
 
 export type RecommenderRequest = {
@@ -54,6 +55,7 @@ export type RankedActivity = {
   activity_id: string;
   raw_score: number;
   repetition_penalty: number;
+  feedback_penalty: number;
   final_score: number;
   score_breakdown: ScoreBreakdown;
   reason_codes: RecommendationReasonCode[];
