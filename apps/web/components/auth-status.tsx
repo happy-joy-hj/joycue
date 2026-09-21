@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { authClient } from "@/lib/auth-client";
 
 export function AuthStatus() {
   const router = useRouter();
+  const pathname = usePathname();
   const { data: session, isPending } = authClient.useSession();
   const [isSigningOut, setIsSigningOut] = useState(false);
 
@@ -56,8 +57,35 @@ export function AuthStatus() {
 
   return (
     <div className="flex items-center gap-2 sm:gap-3">
+      <nav
+        aria-label="Primary navigation"
+        className="flex items-center gap-1 sm:gap-2"
+      >
+        <Link
+          href="/recommend"
+          className={`rounded-lg px-2 py-2 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 sm:px-3 ${
+            pathname.startsWith("/recommend")
+              ? "bg-white/15 text-white"
+              : "text-white/70 hover:text-white"
+          }`}
+        >
+          Recommend
+        </Link>
+
+        <Link
+          href="/saved"
+          className={`rounded-lg px-2 py-2 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 sm:px-3 ${
+            pathname.startsWith("/saved")
+              ? "bg-white/15 text-white"
+              : "text-white/70 hover:text-white"
+          }`}
+        >
+          Saved
+        </Link>
+      </nav>
+
       <p
-        className="hidden max-w-40 truncate text-sm text-white/80 sm:block"
+        className="hidden max-w-40 truncate text-sm text-white/80 lg:block"
         title={session.user.name}
       >
         Hi, {session.user.name}
