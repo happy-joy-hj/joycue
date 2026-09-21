@@ -318,7 +318,65 @@ def test_no_history_preserves_raw_score_as_final_score():
 
     assert result.raw_score == 100.0
     assert result.repetition_penalty == 0.0
+    assert result.feedback_penalty == 0.0
     assert result.final_score == 100.0
+
+def test_not_for_me_feedback_adds_feedback_penalty():
+    context = RecommendationContext(
+        time=TimePreference.UNDER_10_MIN,
+        energy=EffortLevel.LOW,
+        location=LocationType.STAY_IN,
+        budget=BudgetPreference.FREE,
+    )
+
+    activity = make_activity("activity_a")
+
+    history = [
+        RecommendationHistoryItem(
+            activity_id="activity_a",
+            sessions_ago=1,
+            not_for_me=True,
+        ),
+    ]
+
+    result = score_activity(
+        activity,
+        context,
+        history=history,
+    )
+
+    assert result.repetition_penalty == 15.0
+    assert result.feedback_penalty == 20.0
+    assert result.final_score == 65.0
+
+def test_not_for_me_feedback_can_change_ranking():
+    context = RecommendationContext(
+        time=TimePreference.ANY,
+        energy=EffortLevel.HIGH,
+        location=LocationType.EITHER,
+        budget=BudgetPreference.ANY,
+    )
+
+    activities = [
+        make_activity("activity_a"),
+        make_activity("activity_b"),
+    ]
+
+    history = [
+        RecommendationHistoryItem(
+            activity_id="activity_a",
+            sessions_ago=1,
+            not_for_me=True,
+        ),
+    ]
+
+    ranked = rank_activities(
+        activities,
+        context,
+        history=history,
+    )
+
+    assert ranked[0].activity_id == "activity_b"
 
 def test_recent_history_can_change_ranking():
     context = RecommendationContext(

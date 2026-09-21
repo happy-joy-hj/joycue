@@ -1,4 +1,7 @@
-import { ActivitySource } from "@/app/generated/prisma/client";
+import {
+  ActivitySource,
+  RecommendationActionType,
+} from "@/app/generated/prisma/client";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import {
@@ -97,6 +100,15 @@ export async function POST(request: Request) {
           recommendations: {
             select: {
               activityId: true,
+              actions: {
+                where: {
+                  type: RecommendationActionType.NOT_FOR_ME,
+                },
+                select: {
+                  id: true,
+                },
+                take: 1,
+              },
             },
           },
         },
@@ -131,6 +143,7 @@ export async function POST(request: Request) {
       recommendationSession.recommendations.map((recommendation) => ({
         activity_id: recommendation.activityId,
         sessions_ago: index + 1,
+        not_for_me: recommendation.actions.length > 0,
       })),
   );
 
@@ -204,6 +217,7 @@ export async function POST(request: Request) {
         ranking: {
           rawScore: rankedActivity.raw_score,
           repetitionPenalty: rankedActivity.repetition_penalty,
+          feedbackPenalty: rankedActivity.feedback_penalty,
           finalScore: rankedActivity.final_score,
           scoreBreakdown: rankedActivity.score_breakdown,
           reasonCodes: rankedActivity.reason_codes,

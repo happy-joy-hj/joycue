@@ -23,6 +23,7 @@ class RankedActivity(BaseModel):
     activity_id: str = Field(min_length=1)
     raw_score: float = Field(ge=0, le=100)
     repetition_penalty: float = Field(ge=0, le=100)
+    feedback_penalty: float = Field(ge=0, le=100)
     final_score: float = Field(ge=0, le=100)
     score_breakdown: ScoreBreakdown
     reason_codes: list[ReasonCode] = Field(default_factory=list)

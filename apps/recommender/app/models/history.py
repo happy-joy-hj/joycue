@@ -6,3 +6,4 @@ class RecommendationHistoryItem(BaseModel):
 
     activity_id: str = Field(min_length=1)
     sessions_ago: int = Field(ge=1)
+    not_for_me: bool = False
