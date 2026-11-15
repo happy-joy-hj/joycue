@@ -33,6 +33,5 @@ joycue/
 │   ├── web/              # Next.js web application
 │   └── recommender/      # FastAPI recommendation service
 ├── data/                 # Starter activity dataset
-├── docs/                 # Product, architecture, and evaluation docs
 └── README.md
 ```
